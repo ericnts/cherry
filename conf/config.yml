@@ -1,0 +1,7 @@
+project:
+  name: $projectName cherry
+
+db:
+  master:
+    dialector: sqlite
+    path: test_db.db

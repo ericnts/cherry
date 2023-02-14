@@ -1,0 +1,8 @@
+package util
+
+import "regexp"
+
+func CheckTime(time string) bool {
+	ok, _ := regexp.Match("^([0-1][0-9]|2[0-3]):([0-5][0-9])$", []byte(time))
+	return ok
+}
