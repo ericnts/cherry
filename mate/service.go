@@ -2,7 +2,7 @@ package mate
 
 import "github.com/ericnts/cherry/base"
 
-type Service[R Repo[E], E base.Entity] struct {
+type Service[R Repo[E], E base.PO] struct {
 	Resource
 
 	Repo R
