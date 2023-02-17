@@ -2,10 +2,12 @@ package current
 
 import (
 	"context"
+	"github.com/ericnts/cherry/jwt"
 	"github.com/gin-gonic/gin"
 )
 
 const (
+	TokenKey    = "Authorization"
 	UserIDKey   = "currentUserID"
 	UserNameKey = "currentUserName"
 	UserTypeKey = "currentUserType"
@@ -14,6 +16,32 @@ const (
 	GroupIDKey  = "groupID"
 	OfficeIDKey = "officeID"
 )
+
+func SetToken(ctx context.Context, token *jwt.CustomClaims) context.Context {
+	if ctx == nil {
+		return ctx
+	}
+	if c, ok := ctx.(*gin.Context); ok {
+		c.Set(TokenKey, token)
+	} else {
+		ctx = context.WithValue(ctx, TokenKey, token)
+	}
+	SetUserID(ctx, token.Id)
+	SetUserName(ctx, token.Audience)
+	SetUserType(ctx, token.Subject)
+	return ctx
+}
+
+func Token(ctx context.Context) *jwt.CustomClaims {
+	if ctx == nil {
+		return nil
+	}
+	token := ctx.Value(TokenKey)
+	if token == nil {
+		return nil
+	}
+	return token.(*jwt.CustomClaims)
+}
 
 func SetUserID(c context.Context, userID string) context.Context {
 	return SetValue(c, UserIDKey, userID)
