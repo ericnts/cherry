@@ -93,3 +93,55 @@ func TestParseMethodName(t *testing.T) {
 		})
 	}
 }
+
+func Test_parseMethodName(t *testing.T) {
+	type args struct {
+		methodName string
+	}
+	tests := []struct {
+		name       string
+		args       args
+		wantMethod string
+		wantPath   string
+	}{
+		{
+			args: args{
+				methodName: "PostPicturesItemOfItem",
+			},
+			wantMethod: "POST",
+			wantPath:   "/:id/pictures/:id2",
+		},
+		{
+			args: args{
+				methodName: "GetItemCategories",
+			},
+			wantMethod: "GET",
+			wantPath:   "/:id/categories",
+		},
+		{
+			args: args{
+				methodName: "GetSerialsItemCategories",
+			},
+			wantMethod: "GET",
+			wantPath:   "/serials/:id/categories",
+		},
+		{
+			args: args{
+				methodName: "PostItemPictures",
+			},
+			wantMethod: "POST",
+			wantPath:   "/:id/pictures",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotMethod, gotPath := parseMethodName(tt.args.methodName)
+			if gotMethod != tt.wantMethod {
+				t.Errorf("parseMethodName() gotMethod = %v, want %v", gotMethod, tt.wantMethod)
+			}
+			if gotPath != tt.wantPath {
+				t.Errorf("parseMethodName() gotPath = %v, want %v", gotPath, tt.wantPath)
+			}
+		})
+	}
+}

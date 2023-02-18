@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
+	"sync/atomic"
 	"unicode"
 )
 
@@ -120,11 +121,12 @@ func parseMethodName(methodName string) (method, path string) {
 	} else {
 		return
 	}
-	path = parsePath(path)
+	var itemIndex atomic.Int64
+	path = parsePath(path, &itemIndex)
 	return
 }
 
-func parsePath(path string) string {
+func parsePath(path string, itemIndex *atomic.Int64) string {
 	if len(path) == 0 {
 		return ""
 	}
@@ -132,14 +134,19 @@ func parsePath(path string) string {
 	ps := strings.Split(path, "Of")
 	if len(ps) > 1 {
 		for i := len(ps); i > 0; i-- {
-			builder.WriteString(parsePath(ps[i-1]))
+			builder.WriteString(parsePath(ps[i-1], itemIndex))
 		}
 		return builder.String()
 	}
 	for len(path) != 0 {
 		index := strings.Index(path, "Item")
 		if index == 0 {
-			builder.WriteString("/:id")
+			itemIndex.Add(1)
+			if itemIndex.Load() > 1 {
+				builder.WriteString(fmt.Sprintf("/:id%d", itemIndex.Load()))
+			} else {
+				builder.WriteString("/:id")
+			}
 			path = path[4:]
 			continue
 		}
