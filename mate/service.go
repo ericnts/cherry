@@ -31,6 +31,10 @@ func (r *Service[R, E]) FindByPage(q base.PageQuery) ([]E, int64, error) {
 	return r.Repo.PageExport(q.Limit(), q.Offset(), query, args, q.GetPreloads(), q.GetOrder())
 }
 
+func (r *Service[R, E]) FindAll() ([]E, error) {
+	return r.Repo.All()
+}
+
 func (r *Service[R, E]) GetByID(id string, preloads ...interface{}) (E, error) {
 	return r.Repo.GetByID(id, preloads...)
 }
