@@ -83,7 +83,7 @@ func (a *Application) Run(handlers ...gin.HandlerFunc) {
 	baseRouter := a.Engine.Group(config.Options.HttpPrefix)
 	if config.Options.Swagger {
 		baseRouter.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.URL("doc.json")))
-		defer log.Infof("swagger: http://localhost:%v/%s/swagger/index.html", config.Options.HttpPort, config.Options.Name)
+		defer log.Infof("swagger: http://localhost:%v/%s/swagger/index.html", config.Options.HttpPort, config.Options.HttpPrefix)
 	}
 	if config.Options.Pprof {
 		pprof.RouteRegister(baseRouter)
