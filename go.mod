@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
-	github.com/ericnts/config v0.0.1
+	github.com/ericnts/config v0.0.2
 	github.com/ericnts/log v0.0.1
 	github.com/ericnts/orm v0.0.1
 	github.com/gin-contrib/pprof v1.4.0

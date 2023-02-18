@@ -80,7 +80,7 @@ func (a *Application) Run(handlers ...gin.HandlerFunc) {
 	a.Engine.GET("/ping", func(c *gin.Context) {
 		c.String(http.StatusOK, "pong")
 	})
-	baseRouter := a.Engine.Group(config.Options.Name)
+	baseRouter := a.Engine.Group(config.Options.HttpPrefix)
 	if config.Options.Swagger {
 		baseRouter.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.URL("doc.json")))
 		defer log.Infof("swagger: http://localhost:%v/%s/swagger/index.html", config.Options.HttpPort, config.Options.Name)

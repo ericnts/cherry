@@ -132,6 +132,13 @@ func Test_parseMethodName(t *testing.T) {
 			wantMethod: "POST",
 			wantPath:   "/:id/pictures",
 		},
+		{
+			args: args{
+				methodName: "PostItemPicturesItem",
+			},
+			wantMethod: "POST",
+			wantPath:   "/:id/pictures/:id2",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
