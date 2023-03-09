@@ -72,7 +72,7 @@ func TestUserService_Create(t *testing.T) {
 					t.Errorf("GetByName() error = %v, wantErr %v", err, tt.wantErr)
 					return
 				}
-				assert.True(t, got > 0)
+				assert.True(t, len(got) > 0)
 			})
 			assert.Nil(t, err)
 		})

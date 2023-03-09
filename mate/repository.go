@@ -12,7 +12,7 @@ import (
 var _ Repo[base.PO] = (*Repository[base.PO])(nil)
 
 type Repo[P base.PO] interface {
-	Create(p P) (int64, error)
+	Create(p P) (string, error)
 	FindExport(query string, args []interface{}, preloads []interface{}, order ...string) ([]P, error)
 	PageExport(limit, offset int, query string, args []interface{}, preloads []interface{}, order ...string) ([]P, int64, error)
 	FindInIDs(ids []string, preloads ...interface{}) ([]P, error)
@@ -117,13 +117,13 @@ func (r *Repository[P]) All(preloads ...interface{}) ([]P, error) {
 	return ps, err
 }
 
-func (r *Repository[P]) Create(po P) (int64, error) {
+func (r *Repository[P]) Create(po P) (string, error) {
 	if cpo, ok := any(po).(base.CPO); ok {
 		parentID := cpo.GetParentID()
 		if len(parentID) != 0 {
 			parent, err := r.GetByID(parentID)
 			if err != nil {
-				return 0, err
+				return "", err
 			}
 			parentIDs := any(parent).(base.CPO).GetParentIDs()
 			if len(parentIDs) > 0 {
@@ -135,7 +135,10 @@ func (r *Repository[P]) Create(po P) (int64, error) {
 	}
 
 	tx := r.DB().Create(po)
-	return tx.RowsAffected, tx.Error
+	if rpo, ok := any(po).(base.RPO); ok {
+		return rpo.GetID(), tx.Error
+	}
+	return "", tx.Error
 }
 
 func (r *Repository[P]) Update(po P) (int64, error) {

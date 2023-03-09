@@ -8,9 +8,9 @@ type Service[R Repo[E], E base.PO] struct {
 	Repo R
 }
 
-func (r *Service[R, E]) Create(e E) (int64, error) {
+func (r *Service[R, E]) Create(e E) (string, error) {
 	if err := r.Repo.CheckIndex(e); err != nil {
-		return 0, err
+		return "", err
 	}
 	return r.Repo.Create(e)
 }
