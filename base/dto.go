@@ -12,6 +12,7 @@ type Query interface {
 	Query() (string, []interface{})
 	GetOrder() string
 	GetPreloads() []interface{}
+	GetOmits() []string
 }
 
 type Preload struct {
@@ -22,6 +23,7 @@ type Preload struct {
 type EmptyQuery struct {
 	Order    string        `json:"order" form:"order"` //排序
 	Preloads []interface{} `json:"-"`                  //预加载
+	Omits    []string      `json:"-"`                  //忽略的字段
 }
 
 func (e *EmptyQuery) Query() (string, []interface{}) {
@@ -34,6 +36,10 @@ func (e *EmptyQuery) GetOrder() string {
 
 func (e *EmptyQuery) GetPreloads() []interface{} {
 	return e.Preloads
+}
+
+func (e *EmptyQuery) GetOmits() []string {
+	return e.Omits
 }
 
 type PageQuery interface {

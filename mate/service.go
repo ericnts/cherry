@@ -16,19 +16,11 @@ func (r *Service[R, E]) Create(e E) (string, error) {
 }
 
 func (r *Service[R, E]) FindByQuery(q base.Query) ([]E, error) {
-	query, args := q.Query()
-	if len(query) == 0 {
-		query, args = base.GetQuery(q)
-	}
-	return r.Repo.FindExport(query, args, q.GetPreloads(), q.GetOrder())
+	return r.Repo.FindExport(q)
 }
 
 func (r *Service[R, E]) FindByPage(q base.PageQuery) ([]E, int64, error) {
-	query, args := q.Query()
-	if len(query) == 0 {
-		query, args = base.GetQuery(q)
-	}
-	return r.Repo.PageExport(q.Limit(), q.Offset(), query, args, q.GetPreloads(), q.GetOrder())
+	return r.Repo.PageExport(q)
 }
 
 func (r *Service[R, E]) FindAll() ([]E, error) {

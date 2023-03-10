@@ -13,8 +13,8 @@ var _ Repo[base.PO] = (*Repository[base.PO])(nil)
 
 type Repo[P base.PO] interface {
 	Create(p P) (string, error)
-	FindExport(query string, args []interface{}, preloads []interface{}, order ...string) ([]P, error)
-	PageExport(limit, offset int, query string, args []interface{}, preloads []interface{}, order ...string) ([]P, int64, error)
+	FindExport(q base.Query) ([]P, error)
+	PageExport(q base.PageQuery) ([]P, int64, error)
 	FindInIDs(ids []string, preloads ...interface{}) ([]P, error)
 	All(preloads ...interface{}) ([]P, error)
 	GetByID(id string, preloads ...interface{}) (P, error)
@@ -64,18 +64,27 @@ func (r *Repository[P]) GetByID(id string, preloads ...interface{}) (P, error) {
 	return *po, err
 }
 
-func (r *Repository[P]) FindExport(query string, args []interface{}, preloads []interface{}, order ...string) ([]P, error) {
+func (r *Repository[P]) FindExport(q base.Query) ([]P, error) {
+	query, args := q.Query()
+	if len(query) == 0 {
+		query, args = base.GetQuery(q)
+	}
 	ps := make([]P, 0, 0)
 	tx := r.DB().Where(query, args...)
-	for _, preload := range preloads {
+	omits := q.GetOmits()
+	if len(omits) > 0 {
+		tx = tx.Omit(omits...)
+	}
+	for _, preload := range q.GetPreloads() {
 		if pre, ok := preload.(string); ok && pre != "" {
 			tx = tx.Preload(pre)
 		} else if pre, ok := preload.(base.Preload); ok && pre.Query != "" {
 			tx = tx.Preload(pre.Query, pre.Args...)
 		}
 	}
-	if len(order) > 0 && order[0] != "" {
-		tx = tx.Order(order[0])
+	order := q.GetOrder()
+	if len(order) > 0 {
+		tx = tx.Order(order)
 	} else {
 		tx = tx.Order("updated_at desc")
 	}
@@ -83,23 +92,32 @@ func (r *Repository[P]) FindExport(query string, args []interface{}, preloads []
 	return ps, err
 }
 
-func (r *Repository[P]) PageExport(limit, offset int, query string, args []interface{}, preloads []interface{}, order ...string) ([]P, int64, error) {
+func (r *Repository[P]) PageExport(q base.PageQuery) ([]P, int64, error) {
+	query, args := q.Query()
+	if len(query) == 0 {
+		query, args = base.GetQuery(q)
+	}
 	var count int64
 	ps := make([]P, 0, 0)
 	tx := r.DB().Model(&ps).Where(query, args...).Count(&count)
-	for _, preload := range preloads {
+	omits := q.GetOmits()
+	if len(omits) > 0 {
+		tx = tx.Omit(omits...)
+	}
+	for _, preload := range q.GetPreloads() {
 		if pre, ok := preload.(string); ok && pre != "" {
 			tx = tx.Preload(pre)
 		} else if pre, ok := preload.(base.Preload); ok && pre.Query != "" {
 			tx = tx.Preload(pre.Query, pre.Args...)
 		}
 	}
+	order := q.GetOrder()
 	if len(order) > 0 {
-		tx = tx.Order(order[0])
+		tx = tx.Order(order)
 	} else {
 		tx = tx.Order("updated_at desc")
 	}
-	err := tx.Limit(limit).Offset(offset).Find(&ps).Error
+	err := tx.Limit(q.Limit()).Offset(q.Offset()).Find(&ps).Error
 	return ps, count, err
 }
 
