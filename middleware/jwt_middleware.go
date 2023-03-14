@@ -18,6 +18,9 @@ func JWTMiddleware(subjects ...jwt.Subject) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		token := c.Request.Header.Get(TokenKeyHead)
 		if token == "" {
+			token = c.Query("token")
+		}
+		if token == "" {
 			results.Err(c, exception.TokenInvalid, errors.New("缺少Token信息"))
 			return
 		}
